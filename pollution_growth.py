@@ -1,8 +1,9 @@
-# This script perfrom the statistical analysis for the pollution growth paper
+# This script performs the statistical analysis for the pollution growth paper
 
 # Importing required modules
 
 import pandas as pd
+import numpy as np
 import statsmodels.api as stats
 from ToTeX import restab
 
@@ -14,9 +15,9 @@ data = pd.read_csv('C:/Users/User/Documents/Data/Pollution/pollution_data.csv')
 
 # Data sets for ndividual pollutants
 
-co2_data = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n', 'ln_co2_intensity_ratio', 'Country', 'Year']].dropna()
-ch4_data = data[['ln_ch4', 'ln_ch4_lag', 'ln_sk', 'ln_n', 'ln_ch4_intensity_ratio', 'Country', 'Year']].dropna()
-nox_data = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n', 'ln_nox_intensity_ratio', 'Country', 'Year']].dropna()
+co2_data = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n1', 'ln_co2_intensity_ratio', 'Country', 'Year', 'ln_co2_intensity_lag']].dropna()
+ch4_data = data[['ln_ch4', 'ln_ch4_lag', 'ln_sk', 'ln_n1', 'ln_ch4_intensity_ratio', 'Country', 'Year', 'ln_ch4_intensity_lag']].dropna()
+nox_data = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n1', 'ln_nox_intensity_ratio', 'Country', 'Year', 'ln_nox_intensity_lag']].dropna()
 
 # Creating dummy variables for each pollutant
 
@@ -70,7 +71,7 @@ restab(res_list, 'C:/Users/User/Documents/Data/Pollution/restab.txt')
 
 # Next we run gdp models to check coefficients
 
-gdp_data = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n', 'Country', 'Year']].dropna()
+gdp_data = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n1', 'Country', 'Year']].dropna()
 
 gdp_national_dummies = pd.get_dummies(gdp_data['Country'])
 gdp_year_dummies = pd.get_dummies(gdp_data['Year'])
@@ -101,8 +102,19 @@ alpha_gdp = mod.fit().params['ln_sk'] / (mod.fit().params['ln_sk'] + 1 - mod.fit
 alpha = pd.Series([alpha_co2, alpha_ch4, alpha_nox, alpha_gdp], name = 'alpha')
 a_names = pd.Series(['alpha_co2', 'alpha_ch4', 'alpha_nox', 'alpha_gdp'], name = 'Variable')
 alpha = pd.concat([a_names, alpha], axis = 1)
-
 alpha.to_csv('C:/Users/User/Documents/Data/Pollution/alphas.txt', index = False)
+
+# Calculating convergence rates
+
+con_co2 = (1 - alpha_co2) * (np.exp(np.mean(co2_data['ln_n1'])))
+con_ch4 = (1 - alpha_ch4) * (np.exp(np.mean(ch4_data['ln_n1'])))
+con_nox = (1 - alpha_nox) * (np.exp(np.mean(nox_data['ln_n1'])))
+con_gdp = (1 - alpha_gdp) * (np.exp(np.mean(gdp_data['ln_n1'])))
+
+cons = pd.Series([con_co2, con_ch4, con_nox, con_gdp], name = 'convergence_rate')
+c_names = pd.Series(['co2', 'ch4', 'nox', 'gdp'], name = 'Variable')
+alpha = pd.concat([c_names, cons], axis = 1)
+cons.to_csv('C:/Users/User/Documents/Data/Pollution/convergence_rates.txt', index = False)
 
 # Closing note:
 
@@ -110,10 +122,10 @@ alpha.to_csv('C:/Users/User/Documents/Data/Pollution/alphas.txt', index = False)
 
 # This is validated with the code below:
 
-co2_data2 = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n', 'ln_co2_intensity_ratio']].dropna()
-ch4_data2 = data[['ln_ch4', 'ln_ch4_lag', 'ln_sk', 'ln_n', 'ln_ch4_intensity_ratio']].dropna()
-nox_data2 = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n', 'ln_nox_intensity_ratio']].dropna()
-gdp_data2 = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n']].dropna()
+co2_data2 = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n1', 'ln_co2_intensity_ratio', 'ln_co2_intensity_lag']].dropna()
+ch4_data2 = data[['ln_ch4', 'ln_ch4_lag', 'ln_sk', 'ln_n1', 'ln_ch4_intensity_ratio', 'ln_ch4_intensity_lag']].dropna()
+nox_data2 = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n1', 'ln_nox_intensity_ratio', 'ln_nox_intensity_lag']].dropna()
+gdp_data2 = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n1']].dropna()
 
 CO22 = co2_data2['ln_co2']
 CH42 = ch4_data2['ln_ch4']
