@@ -116,6 +116,39 @@ c_names = pd.Series(['co2', 'ch4', 'nox', 'gdp'], name = 'Variable')
 alpha = pd.concat([c_names, cons], axis = 1)
 cons.to_csv('C:/Users/User/Documents/Data/Pollution/convergence_rates.txt', index = False)
 
+# Next we perform unit root tests to make sure our results are good
+
+co2 = data[['ln_co2', 'ln_co2_lag']].dropna()
+ch4 = data[['ln_ch4', 'ln_ch4_lag']].dropna()
+nox = data[['ln_nox', 'ln_nox_lag']].dropna()
+
+co2Xt = co2['ln_co2_lag']
+co2Xct = stats.add_constant(co2Xt)
+co2Y = co2['ln_co2']
+
+ch4Xt = ch4['ln_ch4_lag']
+ch4Xct = stats.add_constant(ch4Xt)
+ch4Y = ch4['ln_ch4']
+
+noxXt = nox['ln_nox_lag']
+noxXct = stats.add_constant(noxXt)
+noxY = nox['ln_nox']
+
+co2_urt = stats.OLS(co2Y, co2Xt)
+co2_urct = stats.OLS(co2Y, co2Xct)
+
+ch4_urt = stats.OLS(ch4Y, ch4Xt)
+ch4_urct = stats.OLS(ch4Y, ch4Xct)
+
+nox_urt = stats.OLS(noxY, noxXt)
+nox_urct = stats.OLS(noxY, noxXct)
+models = [co2_urt, co2_urct, ch4_urt, ch4_urct, nox_urt, nox_urct]
+
+for mod in models:
+    
+    res = mod.fit()
+    print(res.conf_int())
+
 # Closing note:
 
 # The multicollinearity concern is a product of the fixed effects, so we're good (recall we dropped one of each)
@@ -148,7 +181,7 @@ models = [co2_mod2, ch4_mod2, nox_mod2, gdp_mod2]
 
 for mod in models:
     
-    res = mod.fit(cov_type = 'HC1')
+    res = mod.fit()
     res_list.append(res)
     print(res.summary())
 
