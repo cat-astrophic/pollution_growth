@@ -15,10 +15,10 @@ data = pd.read_csv('C:/Users/User/Documents/Data/Pollution/pollution_data_kp.csv
 
 # Data sets for ndividual pollutants
 
-co2_data = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n3', 'ln_co2_intensity_ratio', 'Country', 'Year', 'ln_co2_intensity_lag']].dropna()
-ch4_data = data[['ln_ch4', 'ln_ch4_lag3', 'ln_sk', 'ln_n3', 'ln_ch4_intensity_ratio', 'Country', 'Year', 'ln_ch4_intensity_lag3']].dropna()
-nox_data = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n3', 'ln_nox_intensity_ratio', 'Country', 'Year', 'ln_nox_intensity_lag']].dropna()
-ghg_data = data[['ln_ghg', 'ln_ghg_lag', 'ln_sk', 'ln_n3', 'ln_ghg_intensity_ratio', 'Country', 'Year', 'ln_ghg_intensity_lag']].dropna()
+co2_data = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n5', 'ln_co2_intensity_rate', 'Country', 'Year']].dropna()#, 'ln_co2_intensity_lag']].dropna()
+ch4_data = data[['ln_ch4', 'ln_ch4_lag3', 'ln_sk', 'ln_n5', 'ln_ch4_intensity_rate', 'Country', 'Year']].dropna()#, 'ln_ch4_intensity_lag3']].dropna()
+nox_data = data[['ln_nox', 'ln_nox_lag', 'ln_sk', 'ln_n5', 'ln_nox_intensity_rate', 'Country', 'Year']].dropna()#, 'ln_nox_intensity_lag']].dropna()
+ghg_data = data[['ln_ghg', 'ln_ghg_lag', 'ln_sk', 'ln_n5', 'ln_ghg_intensity_rate', 'Country', 'Year']].dropna()#, 'ln_ghg_intensity_lag']].dropna()
 
 # Creating dummy variables for each pollutant
 
@@ -79,7 +79,7 @@ restab(res_list, 'C:/Users/User/Documents/Data/Pollution/restab_kp.txt')
 
 # Next we run gdp models to check coefficients
 
-gdp_data = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n3', 'Country', 'Year']].dropna()
+gdp_data = data[['ln_Income', 'ln_Income_lag', 'ln_sk', 'ln_n5', 'Country', 'Year']].dropna()
 
 gdp_national_dummies = pd.get_dummies(gdp_data['Country'])
 gdp_year_dummies = pd.get_dummies(gdp_data['Year'])
@@ -103,7 +103,7 @@ restab(res_list, 'C:/Users/User/Documents/Data/Pollution/restab_Y_kp.txt')
 # Now we estimate \alpha for each model
 
 alpha_co2 = co2_mod.fit().params['ln_sk'] / (co2_mod.fit().params['ln_sk'] + 1 - co2_mod.fit().params['ln_co2_lag'])
-alpha_ch4 = ch4_mod.fit().params['ln_sk'] / (ch4_mod.fit().params['ln_sk'] + 1 - ch4_mod.fit().params['ln_ch4_lag3'])
+alpha_ch4 = -1*ch4_mod.fit().params['ln_n5'] / (-1*ch4_mod.fit().params['ln_n5'] + 1 - ch4_mod.fit().params['ln_ch4_lag3'])
 alpha_nox = nox_mod.fit().params['ln_sk'] / (nox_mod.fit().params['ln_sk'] + 1 - nox_mod.fit().params['ln_nox_lag'])
 alpha_ghg = ghg_mod.fit().params['ln_sk'] / (ghg_mod.fit().params['ln_sk'] + 1 - ghg_mod.fit().params['ln_ghg_lag'])
 alpha_gdp = mod.fit().params['ln_sk'] / (mod.fit().params['ln_sk'] + 1 - mod.fit().params['ln_Income_lag'])
@@ -115,11 +115,11 @@ alpha.to_csv('C:/Users/User/Documents/Data/Pollution/alphas_kp.txt', index = Fal
 
 # Calculating convergence rates
 
-con_co2 = (1 - alpha_co2) * (np.exp(np.mean(co2_data['ln_n3'])))
-con_ch4 = (1 - alpha_ch4) * (np.exp(np.mean(ch4_data['ln_n3'])))
-con_nox = (1 - alpha_nox) * (np.exp(np.mean(nox_data['ln_n3'])))
-con_ghg = (1 - alpha_ghg) * (np.exp(np.mean(ghg_data['ln_n3'])))
-con_gdp = (1 - alpha_gdp) * (np.exp(np.mean(gdp_data['ln_n3'])))
+con_co2 = (1 - alpha_co2) * (np.exp(np.mean(co2_data['ln_n5'])))
+con_ch4 = (1 - alpha_ch4) * (np.exp(np.mean(ch4_data['ln_n5'])))
+con_nox = (1 - alpha_nox) * (np.exp(np.mean(nox_data['ln_n5'])))
+con_ghg = (1 - alpha_ghg) * (np.exp(np.mean(ghg_data['ln_n5'])))
+con_gdp = (1 - alpha_gdp) * (np.exp(np.mean(gdp_data['ln_n5'])))
 
 cons = pd.Series([con_co2, con_ch4, con_nox, con_ghg, con_gdp], name = 'convergence_rate')
 c_names = pd.Series(['co2', 'ch4', 'nox', 'ghg', 'gdp'], name = 'Variable')
