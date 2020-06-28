@@ -7,6 +7,7 @@ import numpy as np
 
 # Reading in the trade data
 
+print('Reading in the raw data.......')
 data = pd.read_csv('C:/Users/User/Documents/Data/Pollution/Networks/Dyadic_COW_4.0.csv')
 
 # Converting -9 to 0 (-9 was the code for no data available)
@@ -48,6 +49,45 @@ for y in yrs:
     # Saving the trade network as a dataframe
     
     A = pd.DataFrame(A, columns = countries)
-    print('Writing ' + str(y) + ' trade network to file.......')
-    A.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/A_' + str(y) + '.csv', index = False)
+    print('Writing ' + str(y) + ' weighted trade network to file.......')
+    A.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/W_' + str(y) + '.csv', index = False)
     
+    # Making and saving a binary version
+    
+    A[A > 0] = 1
+    print('Writing ' + str(y) + ' binary trade network to file.......')
+    A.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/A_' + str(y) + '.csv', index = False)
+
+    # Making and saving two versions of the competition graphs: total competing markets and binary
+    
+    # Create an empty matrix to fill in for total competing markets
+    
+    C = np.zeros((len(countries),len(countries)))
+    
+    # Create the adjacency matrix of the total competition graph
+    
+    for col in A.columns:
+        
+        # For each column, the non-zero entries is the set of competitors for exporting to A[col] 
+        
+        l = [i for i in range(len(A)) if A[col][i] > 0]
+        
+        for i in range(len(l)-1):
+            
+            for j in range(i+1,len(l)):                
+                
+                C[l[i],l[j]] += 1
+                C[l[j],l[i]] += 1
+                
+    # Saving the total competition graph to file as a dataframe
+    
+    C = pd.DataFrame(C, columns = countries)
+    print('Writing ' + str(y) + ' total competition graph to file.......')
+    C.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/TC_' + str(y) + '.csv', index = False)
+    
+    # Making and saving a binary version
+    
+    C[C > 0] = 1
+    print('Writing ' + str(y) + ' competition graph to file.......')
+    C.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/C_' + str(y) + '.csv', index = False)
+
