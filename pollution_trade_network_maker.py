@@ -25,6 +25,35 @@ yrs = [i for i in range(1969,2015)]
 
 countries = sorted(pd.Series(sorted(data.importer1.unique())+sorted(data.importer2.unique())).unique())
 
+# A duplicate which will be updated to match the primary data set
+
+countries_matched = sorted(pd.Series(sorted(data.importer1.unique())+sorted(data.importer2.unique())).unique())
+
+# A dictionary of country names which differ across data sets
+# The structure of this dictionary is as follows: {main data set: network data}
+
+dic = {'Antigua & Barbuda':'Antigua and Barbuda', 'Bahamas':'Bahamas, The',
+       'Brunei':'Brunei Darussalam', 'Cape Verde':'Cabo Verde',
+       'Democratic Republic of the Congo':'Congo, Dem. Rep.',
+       'Congo':'Congo, Rep.', 'Ivory Coast':"Cote d'Ivoire",
+       'Egypt':'Egypt, Arab Rep.', 'Swaziland':'Eswatini',
+       'Gambia':'Gambia, The', 'Iran':'Iran, Islamic Rep.',
+       'North Korea':'Korea, Dem. People’s Rep.', 'South Korea':'Korea, Rep.',
+       'Kyrgyzstan':'Kyrgyz Republic', 'Laos':'Lao PDR',
+       'Federated States of Micronesia':'Micronesia, Fed. Sts.',
+       'Macedonia':'North Macedonia', 'Russia':'Russian Federation',
+       'Slovakia':'Slovak Republic', 'Syria':'Syrian Arab Republic',
+       'East Timor':'Timor-Leste', 'United States of America':'United States',
+       'Venezuela':'Venezuela, RB', 'Yemen':'Yemen, Rep.'}
+
+# Rename the countries as appropriate
+
+for c in countries_matched:
+    
+    if c in dic.keys():
+        
+        countries_matched[countries_matched.index(c)] = dic[c]
+        
 # Creating trade networks for each year
 
 for y in yrs:
@@ -48,7 +77,7 @@ for y in yrs:
 
     # Saving the trade network as a dataframe
     
-    A = pd.DataFrame(A, columns = countries)
+    A = pd.DataFrame(A, columns = countries_matched)
     print('Writing ' + str(y) + ' weighted trade network to file.......')
     A.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/W_' + str(y) + '.csv', index = False)
     
@@ -74,14 +103,14 @@ for y in yrs:
         
         for i in range(len(l)-1):
             
-            for j in range(i+1,len(l)):                
+            for j in range(i+1,len(l)):
                 
                 C[l[i],l[j]] += 1
                 C[l[j],l[i]] += 1
                 
     # Saving the total competition graph to file as a dataframe
     
-    C = pd.DataFrame(C, columns = countries)
+    C = pd.DataFrame(C, columns = countries_matched)
     print('Writing ' + str(y) + ' total competition graph to file.......')
     C.to_csv('C:/Users/User/Documents/Data/Pollution/Networks/TC_' + str(y) + '.csv', index = False)
     
