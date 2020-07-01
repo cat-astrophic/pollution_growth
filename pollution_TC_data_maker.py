@@ -36,13 +36,13 @@ def emissions_lists(xxx_nations, ccc_nations, nations):
 
 # This function further restricts nations to those with intensity data
 
-def extant_intensity(ydat, listy):
+def extant_intensity(ydat, listy, emission):
     
     listy2 = [l for l in listy]
     
     for n in listy2:
         
-        if (ydat.co2_intensity[ydat.Country.tolist().index(n)] > 0) == False:
+        if (ydat[emission][ydat.Country.tolist().index(n)] > 0) == False:
             
             listy.remove(n)
             
@@ -102,10 +102,10 @@ for y in yrs:
     
     # Further paring down emissions lists based on the existence of intensities data
     
-    co2_nations = extant_intensity(ydata, co2_nations)
-    ch4_nations = extant_intensity(ydata, ch4_nations)
-    nox_nations = extant_intensity(ydata, nox_nations)
-    ghg_nations = extant_intensity(ydata, ghg_nations)        
+    co2_nations = extant_intensity(ydata, co2_nations, 'co2_intensity')
+    ch4_nations = extant_intensity(ydata, ch4_nations, 'ch4_intensity')
+    nox_nations = extant_intensity(ydata, nox_nations, 'nox_intensity')
+    ghg_nations = extant_intensity(ydata, ghg_nations, 'ghg_intensity')
     
     # Remove extra rows and columns from TC - for each intensity
     
@@ -193,26 +193,30 @@ for y in yrs:
     
     current_year = [y for c in co2_nations]
     next_year = [y+1 for c in co2_nations]
+    co2_d = [x[0] for x in co2_data.tolist()]
     temp_co2 = pd.DataFrame({'Current Year':current_year, 'Next Year':next_year,
-                             'Nation':co2_nations, 'CO2 Data':co2_data.tolist()})
+                             'Nation':co2_nations, 'CO2 Data':co2_d})
     CO2_df = pd.concat([CO2_df, temp_co2], axis = 0)
     
     current_year = [y for c in ch4_nations]
     next_year = [y+1 for c in ch4_nations]
+    ch4_d = [x[0] for x in ch4_data.tolist()]
     temp_ch4 = pd.DataFrame({'Current Year':current_year, 'Next Year':next_year,
-                             'Nation':ch4_nations, 'CH4 Data':ch4_data.tolist()})
+                             'Nation':ch4_nations, 'CH4 Data':ch4_d})
     CH4_df = pd.concat([CH4_df, temp_ch4], axis = 0)
     
     current_year = [y for c in nox_nations]
     next_year = [y+1 for c in nox_nations]
+    nox_d = [x[0] for x in nox_data.tolist()]
     temp_nox = pd.DataFrame({'Current Year':current_year, 'Next Year':next_year,
-                             'Nation':nox_nations, 'NOX Data':nox_data.tolist()})
+                             'Nation':nox_nations, 'NOX Data':nox_d})
     NOX_df = pd.concat([NOX_df, temp_nox], axis = 0)
     
     current_year = [y for c in ghg_nations]
     next_year = [y+1 for c in ghg_nations]
+    ghg_d = [x[0] for x in ghg_data.tolist()]
     temp_ghg = pd.DataFrame({'Current Year':current_year, 'Next Year':next_year,
-                             'Nation':ghg_nations, 'GHG Data':ghg_data.tolist()})
+                             'Nation':ghg_nations, 'GHG Data':ghg_d})
     GHG_df = pd.concat([GHG_df, temp_ghg], axis = 0)
     
 # Write dataframe to file
