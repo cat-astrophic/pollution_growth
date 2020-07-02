@@ -149,6 +149,8 @@ for y in yrs:
     
     # Normalize TC - for each intensity
     
+    # This creates a row-normalized matrix!
+    
     co2_sums = [sum(TC_co2[col]) for col in TC_co2.columns]
     ch4_sums = [sum(TC_ch4[col]) for col in TC_ch4.columns]
     nox_sums = [sum(TC_nox[col]) for col in TC_nox.columns]
