@@ -66,14 +66,14 @@ for y in yrs:
     
     A = np.zeros((len(countries),len(countries)))
     
-    # Filling in the matrix
+    # Filling in the matrix -- rows = exports; cols = imports
     
     for row in range(len(ydata)):
         
         i = countries.index(ydata.importer1[row])
         j = countries.index(ydata.importer2[row])
-        A[i,j] = ydata.flow2[row]
-        A[j,i] = ydata.flow1[row]
+        A[i,j] = ydata.flow2[row] # from importer1 to importer2
+        A[j,i] = ydata.flow1[row] # from importer2 to importer1
 
     # Saving the trade network as a dataframe
     
