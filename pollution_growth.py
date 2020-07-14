@@ -146,7 +146,7 @@ models = [co2_urt, co2_urct, ch4_urt, ch4_urct, nox_urt, nox_urct]
 
 for mod in models:
     
-    res = mod.fit()
+    res = mod.fit(cov_type = 'HC1')
     print(res.conf_int())
 
 # Closing note:
@@ -181,7 +181,7 @@ models = [co2_mod2, ch4_mod2, nox_mod2, gdp_mod2]
 
 for mod in models:
     
-    res = mod.fit()
+    res = mod.fit(cov_type = 'HC1')
     res_list.append(res)
     print(res.summary())
 
