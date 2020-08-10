@@ -10,10 +10,15 @@ from ToTeX import restab
 # Reading in the data
 
 data = pd.read_csv('C:/Users/User/Documents/Data/Pollution/pollution_data.csv')
+W = pd.read_csv('C:/Users/User/Documents/Data/Pollution/pollution_data_W_reference.csv', header = None)
+
+# Creating a reference list of nations
+
+nations = list(data.Country.unique())
 
 # Prepping data for pollution regression
 
-# Data sets for ndividual pollutants
+# Data sets for individual pollutants
 
 co2_data = data[['ln_co2', 'ln_co2_lag', 'ln_sk', 'ln_n5', 'ln_co2_intensity_rate', 'Country', 'Year', 'ln_co2_intensity_lag']].dropna()
 ch4_data = data[['ln_ch4', 'ln_ch4_lag', 'ln_sk', 'ln_n5', 'ln_ch4_intensity_rate', 'Country', 'Year', 'ln_ch4_intensity_lag']].dropna()
@@ -228,4 +233,62 @@ for mod in nox_models:
     file.close()
     
 restab(res_list, 'C:/Users/User/Documents/Data/Pollution/restab_networks_NOX.txt')
+
+# Geographical regression
+
+geo_co2_rob = data[['co2_intensity', 'co2_intensity_init', 'co2_intensity_lag', 'co2_tech', 'GEO_CO2', 'Country', 'Year']].dropna()
+co2_national_dummies = pd.get_dummies(geo_co2_rob['Country'])
+co2_year_dummies = pd.get_dummies(geo_co2_rob['Year'])
+geo_co2_robx = pd.concat([geo_co2_rob, co2_national_dummies, co2_year_dummies], axis = 1).drop(['co2_intensity', 'Country', 'Year', 'Zimbabwe', 1971], axis = 1)
+geo_co2_rob_mod = stats.OLS(geo_co2_rob['co2_intensity'].astype(float), stats.add_constant(geo_co2_robx).astype(float))
+res = geo_co2_rob_mod.fit(cov_type = 'HC1')
+res_list.append(res)
+print(res.summary())
+file = open('C:/Users/User/Documents/Data/Pollution/GEO_CO2.txt', 'w')
+file.write(res.summary().as_text())
+file.close()
+   
+# Regressions with geographic spillovers and network effects
+
+# GEO + TC
+
+geo_tc_co2_rob = data[['co2_intensity', 'co2_intensity_init', 'co2_intensity_lag', 'co2_tech', 'GEO_CO2', 'TC_CO2_ROB', 'Country', 'Year']].dropna()
+co2_national_dummies = pd.get_dummies(geo_tc_co2_rob['Country'])
+co2_year_dummies = pd.get_dummies(geo_tc_co2_rob['Year'])
+geo_tc_co2_robx = pd.concat([geo_tc_co2_rob, co2_national_dummies, co2_year_dummies], axis = 1).drop(['co2_intensity', 'Country', 'Year', 'Zimbabwe', 1971], axis = 1)
+geo_tc_co2_rob_mod = stats.OLS(geo_tc_co2_rob['co2_intensity'].astype(float), stats.add_constant(geo_tc_co2_robx).astype(float))
+res = geo_tc_co2_rob_mod.fit(cov_type = 'HC1')
+res_list.append(res)
+print(res.summary())
+file = open('C:/Users/User/Documents/Data/Pollution/GEO_CO2_TC.txt', 'w')
+file.write(res.summary().as_text())
+file.close()
+
+# GEO + EXPORTS
+
+geo_exp_co2_rob = data[['co2_intensity', 'co2_intensity_init', 'co2_intensity_lag', 'co2_tech', 'GEO_CO2', 'EXP_CO2_ROB', 'Country', 'Year']].dropna()
+co2_national_dummies = pd.get_dummies(geo_exp_co2_rob['Country'])
+co2_year_dummies = pd.get_dummies(geo_exp_co2_rob['Year'])
+geo_exp_co2_robx = pd.concat([geo_exp_co2_rob, co2_national_dummies, co2_year_dummies], axis = 1).drop(['co2_intensity', 'Country', 'Year', 'Zimbabwe', 1971], axis = 1)
+geo_exp_co2_rob_mod = stats.OLS(geo_exp_co2_rob['co2_intensity'].astype(float), stats.add_constant(geo_exp_co2_robx).astype(float))
+res = geo_exp_co2_rob_mod.fit(cov_type = 'HC1')
+res_list.append(res)
+print(res.summary())
+file = open('C:/Users/User/Documents/Data/Pollution/GEO_CO2_EXP.txt', 'w')
+file.write(res.summary().as_text())
+file.close()
+
+# GEO + IMPORTS
+
+geo_imp_co2_rob = data[['co2_intensity', 'co2_intensity_init', 'co2_intensity_lag', 'co2_tech', 'GEO_CO2', 'IMP_CO2_ROB', 'Country', 'Year']].dropna()
+co2_national_dummies = pd.get_dummies(geo_imp_co2_rob['Country'])
+co2_year_dummies = pd.get_dummies(geo_imp_co2_rob['Year'])
+geo_imp_co2_robx = pd.concat([geo_imp_co2_rob, co2_national_dummies, co2_year_dummies], axis = 1).drop(['co2_intensity', 'Country', 'Year', 'Zimbabwe', 1971], axis = 1)
+geo_imp_co2_rob_mod = stats.OLS(geo_imp_co2_rob['co2_intensity'].astype(float), stats.add_constant(geo_imp_co2_robx).astype(float))
+res = geo_imp_co2_rob_mod.fit(cov_type = 'HC1')
+res_list.append(res)
+print(res.summary())
+file = open('C:/Users/User/Documents/Data/Pollution/GEO_CO2_IMP.txt', 'w')
+file.write(res.summary().as_text())
+file.close()
 
