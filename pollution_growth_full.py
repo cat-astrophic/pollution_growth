@@ -292,3 +292,16 @@ file = open('C:/Users/User/Documents/Data/Pollution/GEO_CO2_IMP.txt', 'w')
 file.write(res.summary().as_text())
 file.close()
 
+# Using restab for results table (the above was already there and whatever I need this too)
+
+geo_models = [geo_co2_rob_mod, geo_tc_co2_rob_mod, geo_exp_co2_rob_mod, geo_imp_co2_rob_mod]
+res_list = []
+
+for mod in nox_models:
+    
+    res = mod.fit(cov_type = 'HC1')
+    res_list.append(res)
+    print(res.summary())
+    
+restab(res_list, 'C:/Users/User/Documents/Data/Pollution/restab_networks__GEO_CO2.txt')
+
