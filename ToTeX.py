@@ -7,11 +7,11 @@ def restab(list_of_regression_results, filepath):
     
     models = ['Model ' + str(i+1) + ' & ' for i in range(len(list_of_regression_results))]
     AR2 = [str(format(res.rsquared_adj, '.3f')) + ' & ' for res in list_of_regression_results]
-    #F = [str(format(res.fvalue, '.3f')) + ' & ' for res in list_of_regression_results]
+    F = [str(format(res.fvalue[0][0], '.3f')) + ' & ' for res in list_of_regression_results]
     N = [str(int(res.nobs)) + ' & ' for res in list_of_regression_results]
     models.insert(0,'Variable & ')
     AR2.insert(0,'Adjusted $R^{2}$ & ')
-    #F.insert(0,'$F$-statistic & ')
+    F.insert(0,'$F$-statistic & ')
     N.insert(0,'$N$ & ')
     exogs = []
     
@@ -42,15 +42,15 @@ def restab(list_of_regression_results, filepath):
                 
                 stars = ''
                 
-                if res.pvalues[x] < 0.01:
+                if list(res.pvalues)[list(betas.keys()).index(x)] < 0.01:
                     
                     stars = '***'
                     
-                elif res.pvalues[x] < 0.05:
+                elif list(res.pvalues)[list(betas.keys()).index(x)] < 0.05:
                     
                     stars = '**'
                     
-                elif res.pvalues[x] < 0.1:
+                elif list(res.pvalues)[list(betas.keys()).index(x)] < 0.1:
                     
                     stars = '*'
                     
@@ -82,7 +82,7 @@ def restab(list_of_regression_results, filepath):
     
     models[len(models)-1] = models[len(models)-1][0:len(models[len(models)-1])-3] + '\\\\\hline'
     AR2[len(models)-1] = AR2[len(models)-1][0:len(AR2[len(models)-1])-3] + '\\\\'
-    #F[len(models)-1] = F[len(models)-1][0:len(F[len(models)-1])-3] + '\\\\\hline\hline'
+    F[len(models)-1] = F[len(models)-1][0:len(F[len(models)-1])-3] + '\\\\\hline\hline'
     N[len(models)-1] = N[len(models)-1][0:len(N[len(models)-1])-3] + '\\\\'
     
 
@@ -117,8 +117,8 @@ def restab(list_of_regression_results, filepath):
         file.write(''.join(N) + '\n')
         file.write(rule + '\n')
         file.write(''.join(AR2) + '\n')
-        #file.write(rule + '\n')
-        #file.write(''.join(F) + '\n')
+        file.write(rule + '\n')
+        file.write(''.join(F) + '\n')
         
         for f in footer:
             
